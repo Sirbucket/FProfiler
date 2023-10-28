@@ -38,7 +38,7 @@ local BenchEnd = function()
 	local times = #CollectedTimes
 	local timetotal = 0
 	for i=1, times do
-		time = CollectedTimes[i]
+		local time = CollectedTimes[i]
 		timetotal = timetotal + time
 	end
 	local avg_time = timetotal / times
