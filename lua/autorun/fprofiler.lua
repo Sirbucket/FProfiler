@@ -36,3 +36,6 @@ if CLIENT then
 else
     include("fprofiler/ui/server.lua")
 end
+
+AddCSLuaFile("fprofiler_new/gatherdata.lua")
+include("fprofiler_new/gatherdata.lua")
