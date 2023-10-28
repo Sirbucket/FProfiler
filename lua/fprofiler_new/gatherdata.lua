@@ -2,7 +2,6 @@ local SysTime = SysTime
 local debug = debug
 local debug_sethook = debug.sethook
 local debug_getinfo = debug.getinfo
-local FuncToCheck
 local FuncInfo
 local InfoFunc
 local IsCall = {
@@ -14,13 +13,13 @@ local CalledTime = 0
 local CallCounts = 0
 local Recursive = 0
 local CollectedTimes = {}
-local function OnLuaCalled(event, func)
+local function OnLuaCalled(event)
 	local info2 = debug_getinfo(3, "f")
 	if info2.func ~= InfoFunc then return end
 
 	if IsCall[event] then
-		Recursive = (Recursive or 0) + 1
-		CallCounts = (CallCounts or 0) + 1
+		Recursive = Recursive + 1
+		CallCounts = CallCounts + 1
 		if Recursive == 1 then
 			CalledTime = SysTime()
 		end
@@ -33,11 +32,10 @@ local function OnLuaCalled(event, func)
 end
 
 local EventFunc = function(event)
-	OnLuaCalled(event, FuncToCheck, FuncInfo)
+	OnLuaCalled(event)
 end
 
 local function FProfilerStart(func, info)
-	FuncToCheck = func
 	FuncInfo = info
 	InfoName = FuncInfo.func
 	debug_sethook(EventFunc, "cr")
@@ -68,14 +66,14 @@ function FProfilerRun(func, time)
 	FProfilerStart(func, info)
 end
 
-function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench, func, ...)
+function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench, func)
 	local info = debug.getinfo(func)
 	if not info then ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func)) end
 
 	timer.Create("FProfilerBench."..tostring(func), frequency, 0, function()
 		CalledTime = SysTime()
 		for i=1, number_of_calls_per_bench do
-			func(...)
+			func()
 		end
 		CollectedTimes[#CollectedTimes + 1] = SysTime() - CalledTime
 	end)
