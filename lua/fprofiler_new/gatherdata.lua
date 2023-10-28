@@ -19,13 +19,14 @@ local Recursive = 0
 local CollectedTimes = {}
 
 local ToCallFunc
+local CallPerBench
 local BenchStart = function()
 	CalledTime = SysTime()
-	for i=1, number_of_calls_per_bench do
-		func()
+	for i=1, CallPerBench do
+		ToCallFunc()
 	end
 	CollectedTimes[#CollectedTimes + 1] = SysTime() - CalledTime
-	CallCounts = CallCounts + number_of_calls_per_bench
+	CallCounts = CallCounts + CallPerBench
 end
 
 local BenchEnd = function()
@@ -52,6 +53,7 @@ function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench,
 		return
 	end
 	ToCallFunc = func
+	CallPerBench = number_of_calls_per_bench
 	timer_Create("FProfilerBench."..tostring(ToCallFunc), frequency, 0, BenchStart)
 	timer_Simple(time_to_bench_for, BenchEnd)
 end
