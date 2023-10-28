@@ -21,7 +21,7 @@ local CallCounts = 0
 local Recursive = 0
 local CollectedTimes = {}
 
-local TickTime = engine_TickInterval
+local TickTime = engine_TickInterval()
 local ToCallFunc
 local CallPerBench
 local BenchStart = function()
