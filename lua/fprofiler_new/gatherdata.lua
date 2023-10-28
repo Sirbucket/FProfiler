@@ -53,12 +53,7 @@ local function FProfilerStop()
 	end
 	local avg_time = timetotal / times
 
-	print(
-		"Recursive Calls: "..CallCounts.."\n
-		Calls: "..times.."\n
-		Total Time: "..timetotal.."\n
-		Average Time: "..avg_time.."\n
-	")
+	print("Recursive Calls: "..CallCounts.."\nCalls: "..times.."\nTotal Time: "..timetotal.."\nAverage Time: "..avg_time)
 
 	CalledTime = 0
 	CallCounts = 0
@@ -94,11 +89,7 @@ function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench,
 		end
 		local avg_time = timetotal / times
 
-		print("
-			Calls: "..times.."\n
-			Total Time: "..timetotal.."\n
-			Average Time: "..avg_time.."\n
-		")
+		print("Calls: "..times.."\nTotal Time: "..timetotal.."\nAverage Time: "..avg_time)
 
 		CalledTime = 0
 		CallCounts = 0
