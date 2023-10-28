@@ -1,48 +1,35 @@
 local SysTime = SysTime
+local tostring = tostring
+local ErrorNoHaltWithStack = ErrorNoHaltWithStack
+local print = print
+local table = table
+local table_Empty = table.Empty
+
+local timer = timer
+local timer_Simple = timer.Simple
+local timer_Create = timer.Create
+local timer_Remove = timer.Remove
+
 local debug = debug
-local debug_sethook = debug.sethook
 local debug_getinfo = debug.getinfo
-local FuncInfo
-local InfoFunc
-local IsCall = {
-	["call"] = true,
-	["tail call"] = true
-}
 
 local CalledTime = 0
 local CallCounts = 0
 local Recursive = 0
 local CollectedTimes = {}
-local function OnLuaCalled(event)
-	local info2 = debug_getinfo(3, "f")
-	if info2.func ~= InfoFunc then return end
 
-	if IsCall[event] then
-		Recursive = Recursive + 1
-		CallCounts = CallCounts + 1
-		if Recursive == 1 then
-			CalledTime = SysTime()
-		end
-	else
-		if Recursive == 1 then
-			CollectedTimes[#CollectedTimes + 1] = SysTime() - CalledTime
-		end
-		Recursive = Recursive - 1
+local ToCallFunc
+local BenchStart = function()
+	CalledTime = SysTime()
+	for i=1, number_of_calls_per_bench do
+		func()
 	end
+	CollectedTimes[#CollectedTimes + 1] = SysTime() - CalledTime
+	CallCounts = CallCounts + number_of_calls_per_bench
 end
 
-local EventFunc = function(event)
-	OnLuaCalled(event)
-end
-
-local function FProfilerStart(func, info)
-	FuncInfo = info
-	InfoName = FuncInfo.func
-	debug_sethook(EventFunc, "cr")
-end
-
-local function FProfilerStop()
-	debug_sethook()
+local BenchEnd = function()
+	timer_Remove("FProfilerBench."..tostring(ToCallFunc))
 	local times = #CollectedTimes
 	local timetotal = 0
 	for i=1, times do
@@ -51,46 +38,20 @@ local function FProfilerStop()
 	end
 	local avg_time = timetotal / times
 
-	print("Recursive Calls: "..CallCounts.."\nCalls: "..times.."\nTotal Time: "..timetotal.."\nAverage Time: "..avg_time)
+	print("Calls: "..CallCounts.."\nTotal Time: "..timetotal.."\nAverage Time: "..avg_time)
 
 	CalledTime = 0
 	CallCounts = 0
-	table.Empty(CollectedTimes)
-end
-
-function FProfilerRun(func, time)
-	timer.Simple(time, FProfilerStop)
-	local info = debug.getinfo(func)
-	if not info then ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func)) end
-
-	FProfilerStart(func, info)
+	table_Empty(CollectedTimes)
 end
 
 function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench, func)
-	local info = debug.getinfo(func)
-	if not info then ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func)) end
-
-	timer.Create("FProfilerBench."..tostring(func), frequency, 0, function()
-		CalledTime = SysTime()
-		for i=1, number_of_calls_per_bench do
-			func()
-		end
-		CollectedTimes[#CollectedTimes + 1] = SysTime() - CalledTime
-	end)
-	timer.Simple(time_to_bench_for, function()
-		timer.Remove("FProfilerBench."..tostring(func))
-		local times = #CollectedTimes
-		local timetotal = 0
-		for i=1, times do
-			time = CollectedTimes[i]
-			timetotal = timetotal + time
-		end
-		local avg_time = timetotal / times
-
-		print("Calls: "..times.."\nTotal Time: "..timetotal.."\nAverage Time: "..avg_time)
-
-		CalledTime = 0
-		CallCounts = 0
-		table.Empty(CollectedTimes)
-	end)
+	local info = debug_getinfo(func)
+	if not info then
+		ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func))
+		return
+	end
+	ToCallFunc = func
+	timer_Create("FProfilerBench."..tostring(ToCallFunc), frequency, 0, BenchStart)
+	timer_Simple(time_to_bench_for, BenchEnd)
 end
