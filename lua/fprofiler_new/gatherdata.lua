@@ -55,13 +55,14 @@ local function FProfilerStop()
 
 	print(
 		"Recursive Calls: "..CallCounts.."\n
-		Calls: "..#CollectedTimes.."\n
+		Calls: "..times.."\n
 		Total Time: "..timetotal.."\n
 		Average Time: "..avg_time.."\n
 	")
 
 	CalledTime = 0
 	CallCounts = 0
+	table.Empty(CollectedTimes)
 end
 
 function FProfilerRun(func, time)
@@ -76,7 +77,6 @@ function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench,
 		CalledTime = SysTime()
 		for i=1, number_of_calls_per_bench do
 			func(...)
-			CallCounts = CallCounts + 1
 		end
 		CollectedTimes[#CollectedTimes + 1] = SysTime() - CalledTime
 	end)
@@ -90,14 +90,14 @@ function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench,
 		end
 		local avg_time = timetotal / times
 
-		print(
-			"Recursive Calls: "..CallCounts.."\n
-			Calls: "..#CollectedTimes.."\n
+		print("
+			Calls: "..times.."\n
 			Total Time: "..timetotal.."\n
 			Average Time: "..avg_time.."\n
 		")
 
 		CalledTime = 0
 		CallCounts = 0
+		table.Empty(CollectedTimes)
 	end)
 end
