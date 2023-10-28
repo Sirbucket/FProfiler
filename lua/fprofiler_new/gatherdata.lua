@@ -13,11 +13,15 @@ local timer_Remove = timer.Remove
 local debug = debug
 local debug_getinfo = debug.getinfo
 
+local engine = engine
+local engine_TickInterval = engine.TickInterval
+
 local CalledTime = 0
 local CallCounts = 0
 local Recursive = 0
 local CollectedTimes = {}
 
+local TickTime = engine_TickInterval
 local ToCallFunc
 local CallPerBench
 local BenchStart = function()
@@ -46,7 +50,7 @@ local BenchEnd = function()
 	table_Empty(CollectedTimes)
 end
 
-function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench, func)
+function FProfilerBench(time_to_bench_for, number_of_calls_per_bench, func)
 	local info = debug_getinfo(func)
 	if not info then
 		ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func))
@@ -54,6 +58,6 @@ function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench,
 	end
 	ToCallFunc = func
 	CallPerBench = number_of_calls_per_bench
-	timer_Create("FProfilerBench."..tostring(ToCallFunc), frequency, 0, BenchStart)
+	timer_Create("FProfilerBench."..tostring(ToCallFunc), TickTime, 0, BenchStart)
 	timer_Simple(time_to_bench_for, BenchEnd)
 end
