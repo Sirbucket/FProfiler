@@ -69,10 +69,14 @@ function FProfilerRun(func, time)
 	timer.Simple(time, FProfilerStop)
 	local info = debug.getinfo(func)
 	if not info then ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func)) end
+
 	FProfilerStart(func, info)
 end
 
 function FProfilerBench(time_to_bench_for, frequency, number_of_calls_per_bench, func, ...)
+	local info = debug.getinfo(func)
+	if not info then ErrorNoHaltWithStack("INVALID FUNCTION: "..tostring(func)) end
+
 	timer.Create("FProfilerBench."..tostring(func), frequency, 0, function()
 		CalledTime = SysTime()
 		for i=1, number_of_calls_per_bench do
