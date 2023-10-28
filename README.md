@@ -1,4 +1,4 @@
-# Garry's MOd Profiler
+# Garry's Mod Profiler
 
 Rewritten to be a lua_run console function
 
