@@ -41,7 +41,7 @@ local BenchEnd = function()
 		local time = CollectedTimes[i]
 		timetotal = timetotal + time
 	end
-	local avg_time = timetotal / times
+	local avg_time = timetotal / CallCounts
 
 	print("Calls: "..CallCounts.."\nTotal Time: "..timetotal.."\nAverage Time: "..avg_time)
 
